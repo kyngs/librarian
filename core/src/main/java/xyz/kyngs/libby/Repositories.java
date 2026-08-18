@@ -8,7 +8,7 @@ public class Repositories {
     /**
      * Maven Central repository URL.
      */
-    public static final String MAVEN_CENTRAL = "https://repo1.maven.org/maven2/";
+    public static final String MAVEN_CENTRAL = "https://maven-central.storage-download.googleapis.com/maven2/";
 
     /**
      * Sonatype OSS repository URL.

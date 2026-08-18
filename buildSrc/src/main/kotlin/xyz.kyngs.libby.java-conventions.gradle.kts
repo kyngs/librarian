@@ -4,7 +4,10 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
+    maven {
+        url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
+
     maven {
         url = uri("https://repo.maven.apache.org/maven2/")
     }
@@ -28,18 +31,14 @@ repositories {
     maven {
         url = uri("https://repo.velocitypowered.com/snapshots/")
     }
-
-    maven {
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
 }
 
 group = "xyz.kyngs.libby"
 version = "2.0.0-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
     withSourcesJar()
 }
 

@@ -1,8 +1,6 @@
 package xyz.kyngs.libby;
 
 import com.velocitypowered.api.plugin.PluginManager;
-import xyz.kyngs.libby.logging.adapters.VelocityLogAdapter;
-import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -27,36 +25,22 @@ public class VelocityLibraryManager<T> extends LibraryManager {
     /**
      * Creates a new Velocity library manager.
      *
-     * @param logger        the plugin logger
-     * @param dataDirectory plugin's data directory
-     * @param pluginManager Velocity plugin manager
-     * @param plugin        the plugin to manage
-     * @param directoryName download directory name
+     * @param cacheDirectory plugin's data directory
+     * @param pluginManager  Velocity plugin manager
+     * @param plugin         the plugin to manage
      */
-    public VelocityLibraryManager(Logger logger,
-                                  Path dataDirectory,
-                                  PluginManager pluginManager,
+    public VelocityLibraryManager(PluginManager pluginManager,
                                   T plugin,
-                                  String directoryName) {
+                                  Path cacheDirectory) {
 
-        super(new VelocityLogAdapter(logger), dataDirectory, directoryName);
+        super(cacheDirectory);
         this.pluginManager = requireNonNull(pluginManager, "pluginManager");
         this.plugin = requireNonNull(plugin, "plugin");
     }
 
-    /**
-     * Creates a new Velocity library manager.
-     *
-     * @param logger        the plugin logger
-     * @param dataDirectory plugin's data directory
-     * @param pluginManager Velocity plugin manager
-     * @param plugin        the plugin to manage
-     */
-    public VelocityLibraryManager(Logger logger,
-                                  Path dataDirectory,
-                                  PluginManager pluginManager,
+    public VelocityLibraryManager(PluginManager pluginManager,
                                   T plugin) {
-        this(logger, dataDirectory, pluginManager, plugin, "lib");
+        this(pluginManager, plugin, Path.of("libraries"));
     }
 
     /**

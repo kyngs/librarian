@@ -4,49 +4,29 @@ import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import com.grack.nanojson.JsonParserException;
-import xyz.kyngs.libby.classloader.IsolatedClassLoader;
-import xyz.kyngs.libby.logging.LogLevel;
-import xyz.kyngs.libby.logging.Logger;
-import xyz.kyngs.libby.logging.adapters.LogAdapter;
-import xyz.kyngs.libby.relocation.Relocation;
-import xyz.kyngs.libby.relocation.RelocationHelper;
-import xyz.kyngs.libby.transitive.TransitiveDependencyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import xyz.kyngs.libby.classloader.IsolatedClassLoader;
+import xyz.kyngs.libby.relocation.Relocation;
+import xyz.kyngs.libby.relocation.RelocationHelper;
+import xyz.kyngs.libby.transitive.TransitiveDependencyHelper;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -67,18 +47,16 @@ import static java.util.Objects.requireNonNull;
  * @see Library
  */
 public abstract class LibraryManager {
-    /**
-     * Wrapped plugin logger
-     */
-    protected final Logger logger;
+    private static final Logger LOGGER = LoggerFactory.getLogger(LibraryManager.class);
 
     /**
      * Directory where downloaded library jars are saved to
      */
-    protected final Path saveDirectory;
+    protected final Path cacheDirectory;
 
     /**
      * Maven repositories used to resolve artifacts
+     * LinkedHashSet is used to preserve the order of the repositories, List is not used as to prevent duplicates
      */
     private final Set<String> repositories = new LinkedHashSet<>();
 
@@ -98,26 +76,10 @@ public abstract class LibraryManager {
     /**
      * Creates a new library manager.
      *
-     * @param logAdapter    plugin logging adapter
-     * @param dataDirectory plugin's data directory
-     * @deprecated Use {@link LibraryManager#LibraryManager(LogAdapter, Path, String)}
+     * @param cacheDirectory the directory where all libraries will be cached
      */
-    @Deprecated
-    protected LibraryManager(LogAdapter logAdapter, Path dataDirectory) {
-        logger = new Logger(requireNonNull(logAdapter, "logAdapter"));
-        saveDirectory = requireNonNull(dataDirectory, "dataDirectory").toAbsolutePath().resolve("lib");
-    }
-
-    /**
-     * Creates a new library manager.
-     *
-     * @param logAdapter    plugin logging adapter
-     * @param dataDirectory plugin's data directory
-     * @param directoryName download directory name
-     */
-    protected LibraryManager(LogAdapter logAdapter, Path dataDirectory, String directoryName) {
-        logger = new Logger(requireNonNull(logAdapter, "logAdapter"));
-        saveDirectory = requireNonNull(dataDirectory, "dataDirectory").toAbsolutePath().resolve(requireNonNull(directoryName, "directoryName"));
+    protected LibraryManager(Path cacheDirectory) {
+        this.cacheDirectory = cacheDirectory;
     }
 
     /**
@@ -151,31 +113,6 @@ public abstract class LibraryManager {
      */
     public IsolatedClassLoader getIsolatedClassLoaderOf(String libraryId) {
         return isolatedLibraries.get(libraryId);
-    }
-
-    /**
-     * Gets the logging level for this library manager.
-     *
-     * @return log level
-     */
-    public LogLevel getLogLevel() {
-        return logger.getLevel();
-    }
-
-    /**
-     * Sets the logging level for this library manager.
-     * <p>
-     * By setting this value, the library manager's logger will not log any
-     * messages with a level less severe than the configured level. This can be
-     * useful for silencing the download and relocation logging.
-     * <p>
-     * Setting this value to {@link LogLevel#WARN} would silence informational
-     * logging but still print important things like invalid checksum warnings.
-     *
-     * @param level the log level to set
-     */
-    public void setLogLevel(LogLevel level) {
-        logger.setLevel(level);
     }
 
     /**
@@ -305,13 +242,13 @@ public abstract class LibraryManager {
             throw new IllegalArgumentException(e);
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
-                logger.debug("File not found: " + url);
+                LOGGER.debug("File not found: " + url);
             } else if (e instanceof SocketTimeoutException) {
-                logger.debug("Connect timed out: " + url);
+                LOGGER.debug("Connect timed out: " + url);
             } else if (e instanceof UnknownHostException) {
-                logger.debug("Unknown host: " + url);
+                LOGGER.debug("Unknown host: " + url);
             } else {
-                logger.debug("Unexpected IOException", e);
+                LOGGER.debug("Unexpected IOException", e);
             }
 
             return null;
@@ -373,7 +310,7 @@ public abstract class LibraryManager {
             timestamp = timestampChild.getNodeValue();
             buildNumber = buildNumberChild.getNodeValue();
         } catch (ParserConfigurationException | SAXException e) {
-            logger.debug("Invalid maven-metadata.xml", e);
+            LOGGER.debug("Invalid maven-metadata.xml", e);
             return null;
         }
 
@@ -415,24 +352,24 @@ public abstract class LibraryManager {
                         out.write(buf, 0, len);
                     }
                 } catch (SocketTimeoutException e) {
-                    logger.warn("Download timed out: " + connection.getURL());
+                    LOGGER.warn("Download timed out: " + connection.getURL());
                     return null;
                 }
 
-                logger.info("Downloaded library " + connection.getURL());
+                LOGGER.info("Downloaded library " + connection.getURL());
                 return out.toByteArray();
             }
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
-                logger.debug("File not found: " + url);
+                LOGGER.debug("File not found: " + url);
             } else if (e instanceof SocketTimeoutException) {
-                logger.debug("Connect timed out: " + url);
+                LOGGER.debug("Connect timed out: " + url);
             } else if (e instanceof UnknownHostException) {
-                logger.debug("Unknown host: " + url);
+                LOGGER.debug("Unknown host: " + url);
             } else {
-                logger.debug("Unexpected IOException", e);
+                LOGGER.debug("Unexpected IOException", e);
             }
 
             return null;
@@ -463,7 +400,7 @@ public abstract class LibraryManager {
      * @see #loadLibrary(Library)
      */
     public Path downloadLibrary(Library library) {
-        Path file = saveDirectory.resolve(requireNonNull(library, "library").getPath());
+        Path file = cacheDirectory.resolve(requireNonNull(library, "library").getPath());
         if (Files.exists(file)) {
             // Early return only if library isn't a snapshot, since snapshot libraries are always re-downloaded
             if (!library.isSnapshot()) {
@@ -507,11 +444,11 @@ public abstract class LibraryManager {
                 if (md != null) {
                     byte[] checksum = md.digest(bytes);
                     if (!Arrays.equals(checksum, library.getChecksum())) {
-                        logger.warn("*** INVALID CHECKSUM ***");
-                        logger.warn(" Library :  " + library);
-                        logger.warn(" URL :  " + url);
-                        logger.warn(" Expected :  " + Base64.getEncoder().encodeToString(library.getChecksum()));
-                        logger.warn(" Actual :  " + Base64.getEncoder().encodeToString(checksum));
+                        LOGGER.warn("*** INVALID CHECKSUM ***");
+                        LOGGER.warn(" Library :  " + library);
+                        LOGGER.warn(" URL :  " + url);
+                        LOGGER.warn(" Expected :  " + Base64.getEncoder().encodeToString(library.getChecksum()));
+                        LOGGER.warn(" Actual :  " + Base64.getEncoder().encodeToString(checksum));
                         continue;
                     }
                 }
@@ -548,7 +485,7 @@ public abstract class LibraryManager {
         requireNonNull(out, "out");
         requireNonNull(relocations, "relocations");
 
-        Path file = saveDirectory.resolve(out);
+        Path file = cacheDirectory.resolve(out);
         if (Files.exists(file)) {
             return file;
         }
@@ -566,7 +503,7 @@ public abstract class LibraryManager {
             relocator.relocate(in, tmpOut, relocations);
             Files.move(tmpOut, file);
 
-            logger.info("Relocations applied to " + saveDirectory.getParent().relativize(in));
+            LOGGER.info("Relocations applied to " + cacheDirectory.getParent().relativize(in));
 
             return file;
         } catch (IOException e) {
@@ -592,7 +529,7 @@ public abstract class LibraryManager {
 
         synchronized (this) {
             if (transitiveDependencyHelper == null) {
-                transitiveDependencyHelper = new TransitiveDependencyHelper(this, saveDirectory);
+                transitiveDependencyHelper = new TransitiveDependencyHelper(this, cacheDirectory);
             }
         }
 
@@ -798,9 +735,9 @@ public abstract class LibraryManager {
         try {
             configureFromJSON(getPluginResourceAsInputStream("libby.json"));
         } catch (JsonParserException e) {
-            logger.error("Your libby.json file is corrupted!", e);
+            LOGGER.error("Your libby.json file is corrupted!", e);
         } catch (UnsupportedOperationException e) {
-            logger.error("Loading resources from the plugin file is not implemented on this platform.", e);
+            LOGGER.error("Loading resources from the plugin file is not implemented on this platform.", e);
         }
     }
 
