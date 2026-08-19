@@ -138,6 +138,16 @@ public abstract class LibraryManager {
      * @param url repository URL to add
      */
     public void addRepository(String url) {
+        if (url.contains("maven.org") || url.contains("repo.maven.apache.org")) {
+            LOGGER.warn("""
+                    === MAVEN CENTRAL WARNING ===
+                    Librarian has detected that you are attempting to use maven central to download your dependencies at runtime.
+                    Please be aware that using Maven Central as a CDN is directly against their terms of service.
+                    If you are using Maven Central to download libraries, please consider using a mirror such as https://maven-central.storage-download.googleapis.com/maven2
+                    Using Maven Central directly is only acceptable for development purposes, and should not be used in production.
+                    """);
+        }
+
         String repo = requireNonNull(url, "url").endsWith("/") ? url : url + '/';
         synchronized (repositories) {
             repositories.add(repo);
