@@ -7,4 +7,3 @@
 
 rootProject.name = "libby-gradle-plugin"
 include("plugin")
-include("test")
