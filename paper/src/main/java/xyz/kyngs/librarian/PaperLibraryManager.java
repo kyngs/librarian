@@ -43,7 +43,7 @@ public class PaperLibraryManager extends LibraryManager implements PluginLoader 
      * @param file the file to add
      */
     @Override
-    protected void addToClasspath(Path file) {
+    protected synchronized void addToClasspath(Path file) {
         requestedLibraries.add(file);
     }
 
