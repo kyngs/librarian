@@ -39,6 +39,7 @@ public class LibrarianTask extends DefaultTask {
         var extension = project.getExtensions().getByType(LibrarianExtension.class);
         var excludedDependencies = extension.getExcludedDependencies();
         var noChecksumDependencies = extension.getNoChecksumDependencies();
+        var mavenCentralRepositoryUrl = extension.getMavenCentralRepositoryUrl();
 
         var output = outputDir.get().file("librarian.json").getAsFile();
         output.getParentFile().mkdirs();
@@ -85,6 +86,9 @@ public class LibrarianTask extends DefaultTask {
             if (repository instanceof MavenArtifactRepository maven) {
                 var path = maven.getUrl().toString();
                 if (!path.startsWith("http")) continue;
+                if (mavenCentralRepositoryUrl != null && (path.contains("maven.org") || path.contains("maven.apache.org"))) {
+                    path = mavenCentralRepositoryUrl;
+                }
                 writer.value(path);
             }
         }

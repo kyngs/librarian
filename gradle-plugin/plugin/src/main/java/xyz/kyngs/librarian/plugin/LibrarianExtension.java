@@ -6,6 +6,7 @@ import java.util.List;
 public class LibrarianExtension {
     private final List<String> excludedDependencies = new ArrayList<>();
     private final List<String> noChecksumDependencies = new ArrayList<>();
+    private String mavenCentralRepositoryUrl = "https://maven-central.storage-download.googleapis.com/maven2";
 
     public List<String> getExcludedDependencies() {
         return excludedDependencies;
@@ -15,6 +16,9 @@ public class LibrarianExtension {
         return noChecksumDependencies;
     }
 
+    public String getMavenCentralRepositoryUrl() {
+        return mavenCentralRepositoryUrl;
+    }
     /**
      * Add a dependency to exclude from the librarian.json file. <br>
      * <br>
@@ -35,5 +39,14 @@ public class LibrarianExtension {
      */
     public void noChecksumDependency(String dependency) {
         noChecksumDependencies.add(dependency);
+    }
+
+    /**
+     * Set the Maven Central repository URL used for downloading dependencies. <br>
+     * By default, it is set to "<a href="https://maven-central.storage-download.googleapis.com/maven2">...</a>". <br>
+     * @param mavenCentralRepositoryUrl The Maven Central repository URL to set, or null to use the actual Maven Central URL
+     */
+    public void setMavenCentralRepositoryUrl(String mavenCentralRepositoryUrl) {
+        this.mavenCentralRepositoryUrl = mavenCentralRepositoryUrl;
     }
 }

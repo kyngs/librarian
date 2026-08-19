@@ -138,7 +138,7 @@ public abstract class LibraryManager {
      * @param url repository URL to add
      */
     public void addRepository(String url) {
-        if (url.contains("maven.org") || url.contains("repo.maven.apache.org")) {
+        if (url.contains("maven.org") || url.contains("maven.apache.org")) {
             LOGGER.warn("""
                     === MAVEN CENTRAL WARNING ===
                     Librarian has detected that you are attempting to use maven central to download your dependencies at runtime.
