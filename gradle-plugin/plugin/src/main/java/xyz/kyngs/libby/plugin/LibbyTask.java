@@ -1,9 +1,3 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package xyz.kyngs.libby.plugin;
 
 import com.grack.nanojson.JsonWriter;
@@ -15,6 +9,7 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,6 +20,7 @@ import java.util.Base64;
 import java.util.List;
 import javax.inject.Inject;
 
+@DisableCachingByDefault(because = "Generates libby metadata from the resolved dependency graph at execution time")
 public class LibbyTask extends DefaultTask {
 
     private final Configuration customScope;

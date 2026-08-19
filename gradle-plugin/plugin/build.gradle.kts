@@ -9,7 +9,6 @@ plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
     `java-gradle-plugin`
     `maven-publish`
-    id("org.cadixdev.licenser").version("0.6.1")
 }
 
 repositories {
@@ -49,12 +48,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
     withJavadocJar()
-}
-
-license {
-    header(rootProject.file("HEADER.txt"))
-    include("**/*.java")
-    newLine(true)
 }
 
 tasks.withType<JavaCompile> {
