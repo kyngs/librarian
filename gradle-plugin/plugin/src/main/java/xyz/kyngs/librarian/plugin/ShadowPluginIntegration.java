@@ -7,6 +7,7 @@ import org.gradle.api.Project;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ShadowPluginIntegration {
     protected static List<LibrarianTask.Relocation> extractShadowJarRelocations(Project project) {
@@ -14,9 +15,9 @@ public class ShadowPluginIntegration {
 
         var relocations = new ArrayList<LibrarianTask.Relocation>();
 
-        for (Relocator relocator : task.getRelocators()) {
+        for (Relocator relocator : task.getRelocators().getOrElse(Set.of())) {
             if (relocator instanceof SimpleRelocator simpleRelocator) {
-                relocations.add(new LibrarianTask.Relocation(simpleRelocator.getPattern(), simpleRelocator.getShadedPattern()));
+                relocations.add(new LibrarianTask.Relocation(simpleRelocator.getPattern$com_gradleup_shadow_shadow(), simpleRelocator.getShadedPattern$com_gradleup_shadow_shadow()));
             }
         }
 

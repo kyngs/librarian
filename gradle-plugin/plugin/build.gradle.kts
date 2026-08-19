@@ -20,12 +20,7 @@ repositories {
 dependencies {
     implementation("com.grack:nanojson:1.7")
 
-    compileOnly("com.github.johnrengelman:shadow:8.1.1")
-
-    // Use JUnit Jupiter for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    compileOnly("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.6.1")
 }
 
 gradlePlugin {

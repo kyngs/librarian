@@ -6,14 +6,14 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
-import org.gradle.api.plugins.JavaPluginExtension;
-import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.file.Directory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.DisableCachingByDefault;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -25,28 +25,23 @@ public class LibrarianTask extends DefaultTask {
 
     private final Configuration customScope;
     private final Project project;
+    private final Provider<Directory> outputDir;
 
     @Inject
-    public LibrarianTask(Configuration customScope, Project project) {
+    public LibrarianTask(Configuration customScope, Project project, Provider<Directory> outputDir) {
         this.customScope = customScope;
         this.project = project;
+        this.outputDir = outputDir;
     }
 
     @TaskAction
     public void run() throws NoSuchAlgorithmException {
-        var main = project
-                .getExtensions()
-                .getByType(JavaPluginExtension.class)
-                .getSourceSets()
-                .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+        var extension = project.getExtensions().getByType(LibrarianExtension.class);
+        var excludedDependencies = extension.getExcludedDependencies();
+        var noChecksumDependencies = extension.getNoChecksumDependencies();
 
-        var excludedDependencies = project.getExtensions().getByType(LibrarianExtension.class).getExcludedDependencies();
-        var noChecksumDependencies = project.getExtensions().getByType(LibrarianExtension.class).getNoChecksumDependencies();
-
-        var output = new File(project.getBuildDir().getPath() + "/librarian", "librarian.json");
+        var output = outputDir.get().file("librarian.json").getAsFile();
         output.getParentFile().mkdirs();
-
-        main.getResources().srcDir(output.getParentFile());
 
         var writer = JsonWriter.string();
 
@@ -71,11 +66,8 @@ public class LibrarianTask extends DefaultTask {
                 writer.end();
                 continue;
             }
-            var jar = artifact.getFile();
-
-            try (var fis = new java.io.FileInputStream(jar)) {
-                var bytes = fis.readAllBytes();
-                var hash = md.digest(bytes);
+            try {
+                var hash = md.digest(Files.readAllBytes(artifact.getFile().toPath()));
                 writer.value("checksum", Base64.getEncoder().encodeToString(hash));
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -112,11 +104,6 @@ public class LibrarianTask extends DefaultTask {
         }
 
         writer.end();
-        try {
-            output.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         try (FileWriter fileWriter = new FileWriter(output)) {
             fileWriter.write(writer.done());
         } catch (IOException e) {

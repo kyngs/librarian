@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibrarianExtension {
-    private List<String> excludedDependencies = new ArrayList<>();
-    private List<String> noChecksumDependencies = new ArrayList<>();
+    private final List<String> excludedDependencies = new ArrayList<>();
+    private final List<String> noChecksumDependencies = new ArrayList<>();
 
     public List<String> getExcludedDependencies() {
         return excludedDependencies;
