@@ -14,7 +14,6 @@ import org.xml.sax.SAXException;
 import xyz.kyngs.libby.classloader.IsolatedClassLoader;
 import xyz.kyngs.libby.relocation.Relocation;
 import xyz.kyngs.libby.relocation.RelocationHelper;
-import xyz.kyngs.libby.transitive.TransitiveDependencyHelper;
 
 import java.io.*;
 import java.net.*;
@@ -65,8 +64,6 @@ public abstract class LibraryManager {
      * Luck's Jar Relocator
      */
     private RelocationHelper relocator;
-
-    private TransitiveDependencyHelper transitiveDependencyHelper;
 
     /**
      * Map of isolated class loaders and theirs id
@@ -496,26 +493,6 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Resolves and loads transitive libraries for a given library. This method ensures that
-     * all libraries on which the provided library depends are properly loaded.
-     *
-     * @param library the primary library for which transitive libraries need to be resolved and loaded.
-     * @throws NullPointerException if the provided library is null.
-     * @see #loadLibrary(Library)
-     */
-    private Collection<Library> resolveTransitiveLibraries(Library library) {
-        requireNonNull(library, "library");
-
-        synchronized (this) {
-            if (transitiveDependencyHelper == null) {
-                transitiveDependencyHelper = new TransitiveDependencyHelper(this, cacheDirectory);
-            }
-        }
-
-        return transitiveDependencyHelper.findTransitiveLibraries(library);
-    }
-
-    /**
      * Loads a library jar into the plugin's classpath. If the library jar
      * doesn't exist locally, it will be downloaded.
      * <p>
@@ -548,7 +525,7 @@ public abstract class LibraryManager {
      *
      * @param library the library to load
      * @see #downloadLibrary(Library)
-     * @return Resolved libraries including transitive dependencies
+     * @return Resolved libraries excluding transitive dependencies
      */
     public Collection<Path> preLoadLibrary(Library library) {
         Path file = downloadLibrary(requireNonNull(library, "library"));
@@ -558,18 +535,6 @@ public abstract class LibraryManager {
 
         List<Path> files = new ArrayList<>();
         files.add(file);
-
-        if (library.resolveTransitiveDependencies()) {
-            Collection<Library> transitiveList = resolveTransitiveLibraries(library);
-
-            for (Library transitiveLibrary : transitiveList) {
-                Path transitiveFile = downloadLibrary(transitiveLibrary);
-                if (transitiveLibrary.hasRelocations()) {
-                    transitiveFile = relocate(transitiveFile, transitiveLibrary.getRelocatedPath(), transitiveLibrary.getRelocations());
-                }
-                files.add(transitiveFile);
-            }
-        }
 
         return files;
     }
