@@ -1,6 +1,16 @@
 ### Version 2.0.0
-- Rebrand packages to xyz.kyngs.libby
-- Bump minimum supported Java version to 21
+- Rebrand from Libby to Librarian
+- Rebrand packages to xyz.kyngs.librarian
+- Bump minimum supported Java version to 25
+- Replace the custom logging abstraction with SLF4J
+- Remove Bungee, Nukkit, Sponge, and Bukkit support
+- Drop runtime transitive dependency support from the core library manager
+- Add the Librarian Gradle plugin to generate `librarian.json` metadata from build dependencies
+- Integrate the Gradle plugin build and publish tasks into the root build
+- Trim built-in repository constants to Maven Central's Google mirror
+- Rework Paper support around Paper's `PluginLoader` and `PluginClasspathBuilder`
+- Simplify the Velocity library manager constructors
+- Rename published modules to `librarian-core`, `librarian-paper`, and `librarian-velocity`
 
 ### Version 1.7.0
 * Allow to load libraries into the global classpath on Paper
