@@ -1,8 +1,8 @@
-package xyz.kyngs.libby.classloader;
+package xyz.kyngs.librarian.classloader;
 
-import xyz.kyngs.libby.Library;
-import xyz.kyngs.libby.LibraryManager;
-import xyz.kyngs.libby.Repositories;
+import xyz.kyngs.librarian.Library;
+import xyz.kyngs.librarian.LibraryManager;
+import xyz.kyngs.librarian.Repositories;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;

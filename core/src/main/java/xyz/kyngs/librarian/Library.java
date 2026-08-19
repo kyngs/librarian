@@ -1,7 +1,7 @@
-package xyz.kyngs.libby;
+package xyz.kyngs.librarian;
 
-import xyz.kyngs.libby.relocation.Relocation;
-import xyz.kyngs.libby.util.Util;
+import xyz.kyngs.librarian.relocation.Relocation;
+import xyz.kyngs.librarian.util.Util;
 
 import java.util.*;
 

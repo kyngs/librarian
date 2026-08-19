@@ -33,7 +33,7 @@ repositories {
     }
 }
 
-group = "xyz.kyngs.libby"
+group = "xyz.kyngs.librarian"
 version = "2.0.0-SNAPSHOT"
 
 java {

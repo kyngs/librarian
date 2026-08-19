@@ -1,4 +1,4 @@
-package xyz.kyngs.libby.classloader;
+package xyz.kyngs.librarian.classloader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

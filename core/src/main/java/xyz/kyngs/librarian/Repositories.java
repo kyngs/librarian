@@ -1,4 +1,4 @@
-package xyz.kyngs.libby;
+package xyz.kyngs.librarian;
 
 /**
  * Class containing URLs of public repositories.

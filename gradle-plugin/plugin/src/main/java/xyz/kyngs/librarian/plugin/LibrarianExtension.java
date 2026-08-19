@@ -1,9 +1,9 @@
-package xyz.kyngs.libby.plugin;
+package xyz.kyngs.librarian.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LibbyExtension {
+public class LibrarianExtension {
     private List<String> excludedDependencies = new ArrayList<>();
     private List<String> noChecksumDependencies = new ArrayList<>();
 
@@ -16,7 +16,7 @@ public class LibbyExtension {
     }
 
     /**
-     * Add a dependency to exclude from the libby.json file. <br>
+     * Add a dependency to exclude from the librarian.json file. <br>
      * <br>
      * The dependency is a regex matching the format "group:name:version" <br>
      * For example "org\\.company:library:.*" will exclude all versions of the library "library" from the group "org.company"

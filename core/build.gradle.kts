@@ -1,5 +1,5 @@
 plugins {
-    id("xyz.kyngs.libby.java-conventions")
+    id("xyz.kyngs.librarian.java-conventions")
 }
 
 dependencies {
@@ -11,7 +11,7 @@ dependencies {
 
 //blossom {
 //    replaceToken("@VERSION@", project.version.toString())
-//    replaceToken("@HTTP_USER_AGENT@", "libby/" + project.version.toString())
+//    replaceToken("@HTTP_USER_AGENT@", "librarian/" + project.version.toString())
 //}
 
-description = "libby-core"
+description = "librarian-core"

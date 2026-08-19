@@ -1,4 +1,4 @@
-package xyz.kyngs.libby;
+package xyz.kyngs.librarian;
 
 import com.velocitypowered.api.plugin.PluginManager;
 

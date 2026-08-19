@@ -3,12 +3,12 @@
  */
 
 plugins {
-    id("xyz.kyngs.libby.java-conventions")
+    id("xyz.kyngs.librarian.java-conventions")
 }
 
 dependencies {
-    api(project(":libby-core"))
+    api(project(":librarian-core"))
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 }
 
-description = "libby-paper"
+description = "librarian-paper"

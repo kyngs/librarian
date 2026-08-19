@@ -1,4 +1,4 @@
-package xyz.kyngs.libby.plugin;
+package xyz.kyngs.librarian.plugin;
 
 import com.grack.nanojson.JsonWriter;
 import org.gradle.api.DefaultTask;
@@ -20,14 +20,14 @@ import java.util.Base64;
 import java.util.List;
 import javax.inject.Inject;
 
-@DisableCachingByDefault(because = "Generates libby metadata from the resolved dependency graph at execution time")
-public class LibbyTask extends DefaultTask {
+@DisableCachingByDefault(because = "Generates librarian metadata from the resolved dependency graph at execution time")
+public class LibrarianTask extends DefaultTask {
 
     private final Configuration customScope;
     private final Project project;
 
     @Inject
-    public LibbyTask(Configuration customScope, Project project) {
+    public LibrarianTask(Configuration customScope, Project project) {
         this.customScope = customScope;
         this.project = project;
     }
@@ -40,10 +40,10 @@ public class LibbyTask extends DefaultTask {
                 .getSourceSets()
                 .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 
-        var excludedDependencies = project.getExtensions().getByType(LibbyExtension.class).getExcludedDependencies();
-        var noChecksumDependencies = project.getExtensions().getByType(LibbyExtension.class).getNoChecksumDependencies();
+        var excludedDependencies = project.getExtensions().getByType(LibrarianExtension.class).getExcludedDependencies();
+        var noChecksumDependencies = project.getExtensions().getByType(LibrarianExtension.class).getNoChecksumDependencies();
 
-        var output = new File(project.getBuildDir().getPath() + "/libby", "libby.json");
+        var output = new File(project.getBuildDir().getPath() + "/librarian", "librarian.json");
         output.getParentFile().mkdirs();
 
         main.getResources().srcDir(output.getParentFile());

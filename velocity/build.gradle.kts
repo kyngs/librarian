@@ -3,12 +3,12 @@
  */
 
 plugins {
-    id("xyz.kyngs.libby.java-conventions")
+    id("xyz.kyngs.librarian.java-conventions")
 }
 
 dependencies {
-    api(project(":libby-core"))
+    api(project(":librarian-core"))
     compileOnly("com.velocitypowered:velocity-api:3.1.1")
 }
 
-description = "libby-velocity"
+description = "librarian-velocity"

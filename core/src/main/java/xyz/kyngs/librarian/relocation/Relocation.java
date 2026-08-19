@@ -1,4 +1,4 @@
-package xyz.kyngs.libby.relocation;
+package xyz.kyngs.librarian.relocation;
 
 import java.util.Collection;
 import java.util.Collections;

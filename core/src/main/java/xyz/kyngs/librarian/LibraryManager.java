@@ -1,4 +1,4 @@
-package xyz.kyngs.libby;
+package xyz.kyngs.librarian;
 
 import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
@@ -11,9 +11,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import xyz.kyngs.libby.classloader.IsolatedClassLoader;
-import xyz.kyngs.libby.relocation.Relocation;
-import xyz.kyngs.libby.relocation.RelocationHelper;
+import xyz.kyngs.librarian.classloader.IsolatedClassLoader;
+import xyz.kyngs.librarian.relocation.Relocation;
+import xyz.kyngs.librarian.relocation.RelocationHelper;
 
 import java.io.*;
 import java.net.*;
@@ -585,7 +585,7 @@ public abstract class LibraryManager {
         int version = root.getInt("version", -1);
 
         if (version != 0) {
-            throw new IllegalArgumentException("The json file is version " + version + " but this version of libby only supports version 0");
+            throw new IllegalArgumentException("The json file is version " + version + " but this version of librarian only supports version 0");
         }
 
         // The repositories don't have to be included in the JSON file
@@ -671,15 +671,15 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Configures the current library manager from a libby.json file in the plugin classpath.
+     * Configures the current library manager from a librarian.json file in the plugin classpath.
      *
      * @see #configureFromJSON(InputStream)
      */
     public void configureFromJSON() {
         try {
-            configureFromJSON(getPluginResourceAsInputStream("libby.json"));
+            configureFromJSON(getPluginResourceAsInputStream("librarian.json"));
         } catch (JsonParserException e) {
-            LOGGER.error("Your libby.json file is corrupted!", e);
+            LOGGER.error("Your librarian.json file is corrupted!", e);
         } catch (UnsupportedOperationException e) {
             LOGGER.error("Loading resources from the plugin file is not implemented on this platform.", e);
         }

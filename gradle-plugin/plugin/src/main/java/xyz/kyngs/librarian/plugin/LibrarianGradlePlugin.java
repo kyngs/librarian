@@ -1,4 +1,4 @@
-package xyz.kyngs.libby.plugin;
+package xyz.kyngs.librarian.plugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -9,18 +9,18 @@ import org.gradle.language.jvm.tasks.ProcessResources;
 /**
  * A simple 'hello world' plugin.
  */
-public class LibbyGradlePlugin implements Plugin<Project> {
+public class LibrarianGradlePlugin implements Plugin<Project> {
     public void apply(Project project) {
-        project.getExtensions().create("libby", LibbyExtension.class);
+        project.getExtensions().create("librarian", LibrarianExtension.class);
 
-        Configuration customScope = project.getConfigurations().create("libby");
+        Configuration customScope = project.getConfigurations().create("librarian");
 
         project.getPlugins().apply(JavaPlugin.class);
         project.getConfigurations().getByName(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME).extendsFrom(customScope);
 
-        project.getTasks().register("libby", LibbyTask.class, customScope, project);
+        project.getTasks().register("librarian", LibrarianTask.class, customScope, project);
         project.getTasks().withType(ProcessResources.class).configureEach(task -> {
-            task.dependsOn("libby");
+            task.dependsOn("librarian");
         });
     }
 }

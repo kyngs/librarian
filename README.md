@@ -1,4 +1,4 @@
-# Libby
+# Librarian
 
 A runtime dependency management library for Java projects, primarily designed for Java-based Minecraft server plugins.
 
@@ -16,11 +16,11 @@ faster downloads and less bandwidth strain when self-hosting.
 
 ### Maven Central and other public repositories note
 
-Libby downloads dependencies from remote repositories at runtime, on every server that runs your
+Librarian downloads dependencies from remote repositories at runtime, on every server that runs your
 plugin. Pointing it at Maven Central (or other public repositories such as Sonatype) effectively
 uses them as a CDN to serve dependencies to end users, which their infrastructure is not meant for.
 
-Host your own mirror of the repositories you depend on and configure Libby to use it instead. This
+Host your own mirror of the repositories you depend on and configure Librarian to use it instead. This
 keeps traffic on infrastructure you control and avoids upstream availability or rate-limiting issues.
 
 ### Usage
@@ -29,12 +29,12 @@ Add the repository and dependency (Gradle example):
 ```kts
 maven { url = uri("https://repo.kyngs.xyz/public/") }
 
-implementation("xyz.kyngs.libby:libby-paper:2.0.0-SNAPSHOT") // replace paper with your platform
+implementation("xyz.kyngs.librarian:librarian-paper:2.0.0-SNAPSHOT") // replace paper with your platform
 ```
 
-**Always** relocate Libby to avoid conflicts:
+**Always** relocate Librarian to avoid conflicts:
 ```kts
-relocate("xyz.kyngs.libby", "your.package.lib.libby")
+relocate("xyz.kyngs.librarian", "your.package.lib.librarian")
 ```
 
 Create a LibraryManager for your platform:
@@ -65,9 +65,9 @@ libraryManager.loadLibrary(lib);
 
 ## Gradle plugin
 
-The Gradle plugin lets you declare Libby dependencies in your build script instead of specifying
-them manually in code. On build, it generates a `libby.json` inside your JAR listing all
-dependencies (including transitive ones) and their repositories, which Libby loads at runtime.
+The Gradle plugin lets you declare Librarian dependencies in your build script instead of specifying
+them manually in code. On build, it generates a `librarian.json` inside your JAR listing all
+dependencies (including transitive ones) and their repositories, which Librarian loads at runtime.
 
 ### Adding the plugin
 
@@ -88,37 +88,37 @@ Then apply it in `build.gradle`:
 
 ```groovy
 plugins {
-    id 'xyz.kyngs.libby.plugin' version '1.2.1'
+    id 'xyz.kyngs.librarian.plugin' version '1.2.1'
 }
 ```
 
 ### Declaring dependencies
 
-Replace the `compileOnly` configuration with `libby`:
+Replace the `compileOnly` configuration with `librarian`:
 
 ```groovy
 dependencies {
-    libby 'com.zaxxer:HikariCP:5.0.1'
+    librarian 'com.zaxxer:HikariCP:5.0.1'
 }
 ```
 
-The libby task, run automatically on build, writes the `libby.json` described above into the final JAR.
+The librarian task, run automatically on build, writes the `librarian.json` described above into the final JAR.
 
-### Linking with Libby
+### Linking with Librarian
 
-The plugin only generates `libby.json`; you still have to load it. Call
+The plugin only generates `librarian.json`; you still have to load it. Call
 `LibraryManager.configureFromJSON()` to do so.
 
 ### Further configuration
 
 #### Relocating
 
-Relocation is important when bundling libraries. Add the `shadow` plugin alongside Libby:
+Relocation is important when bundling libraries. Add the `shadow` plugin alongside Librarian:
 
 ```groovy
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'xyz.kyngs.libby.plugin' version '1.2.1'
+    id 'xyz.kyngs.librarian.plugin' version '1.2.1'
 }
 ```
 
@@ -144,7 +144,7 @@ Exclude a dependency with a regular expression matched against each dependency i
 (`groupId:artifactId:version`):
 
 ```groovy
-libby {
+librarian {
     excludeDependency 'org.slf4j:.*:.*'
 }
 ```

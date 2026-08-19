@@ -1,4 +1,4 @@
-package xyz.kyngs.libby.util;
+package xyz.kyngs.librarian.util;
 
 public class Util {
     public static byte[] hexStringToByteArray(String s) {

@@ -1,4 +1,4 @@
-package xyz.kyngs.libby;
+package xyz.kyngs.librarian;
 
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;

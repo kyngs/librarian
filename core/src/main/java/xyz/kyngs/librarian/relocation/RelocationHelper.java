@@ -1,9 +1,9 @@
-package xyz.kyngs.libby.relocation;
+package xyz.kyngs.librarian.relocation;
 
-import xyz.kyngs.libby.Library;
-import xyz.kyngs.libby.LibraryManager;
-import xyz.kyngs.libby.Repositories;
-import xyz.kyngs.libby.classloader.IsolatedClassLoader;
+import xyz.kyngs.librarian.Library;
+import xyz.kyngs.librarian.LibraryManager;
+import xyz.kyngs.librarian.Repositories;
+import xyz.kyngs.librarian.classloader.IsolatedClassLoader;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
