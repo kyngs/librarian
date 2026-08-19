@@ -23,6 +23,9 @@ uses them as a CDN to serve dependencies to end users, which their infrastructur
 Host your own mirror of the repositories you depend on and configure Librarian to use it instead. This
 keeps traffic on infrastructure you control and avoids upstream availability or rate-limiting issues.
 
+Note that when using the Gradle plugin, Librarian will automatically replace Maven Central with its Google mirror,
+which can be overridden using the `mavenCentralRepositoryUrl` variable in the `librarian` extension block.
+
 ### Usage
 
 Add the repository and dependency (Gradle example):
