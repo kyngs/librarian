@@ -34,7 +34,6 @@ repositories {
 }
 
 group = "xyz.kyngs.librarian"
-version = "2.0.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_25
