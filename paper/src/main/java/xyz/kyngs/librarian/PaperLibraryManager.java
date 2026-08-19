@@ -49,7 +49,7 @@ public class PaperLibraryManager extends LibraryManager implements PluginLoader 
 
     @Override
     protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
-        return getClass().getResourceAsStream(path);
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
 
     @Override
