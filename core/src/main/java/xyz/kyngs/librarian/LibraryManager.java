@@ -76,7 +76,7 @@ public abstract class LibraryManager {
      * @param cacheDirectory the directory where all libraries will be cached
      */
     protected LibraryManager(Path cacheDirectory) {
-        this.cacheDirectory = cacheDirectory;
+        this.cacheDirectory = cacheDirectory.toAbsolutePath();
     }
 
     /**
