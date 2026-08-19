@@ -5,109 +5,151 @@ A runtime dependency management library for Java projects, primarily designed fo
 Libraries can be downloaded from Maven repositories (or direct URLs) into a plugin's data
 folder, relocated and then loaded into the plugin's classpath at runtime.
 
-Or you can use the automatic gradle integration with [kyngs/libby-gradle-plugin](https://github.com/kyngs/libby-gradle-plugin)
+Or you can use the automatic Gradle integration with the [Gradle plugin](#gradle-plugin).
 
 ### Why use runtime dependency management?
 
-Due to file size constraints on plugin hosting services like SpigotMC, some plugins with
-bundled dependencies become too large to be uploaded.
-
-Using runtime dependency management, dependencies are downloaded and cached by the server
-and don't need to be bundled with the plugin, which significantly reduces the size of the
-plugin jar.
-
-A smaller plugin jar also means shorter download times and less network strain for authors
-who self-host their plugins on servers with limited bandwidth.
+Hosting services like SpigotMC limit plugin file size, and bundling dependencies can push a
+plugin over that limit. With runtime dependency management, dependencies are downloaded and
+cached by the server instead of being bundled, keeping the plugin jar small. That also means
+faster downloads and less bandwidth strain when self-hosting.
 
 ### Maven Central and other public repositories note
 
-Libby downloads dependencies directly from remote repositories at runtime, on every server that
-runs your plugin. When you point it at Maven Central (or other public repositories such as Sonatype),
-you are effectively using them as a CDN to serve your dependencies to end users. This is explicitly
-something these repositories do not want: their infrastructure is meant for building projects, not for
-distributing artifacts at scale to production servers.
+Libby downloads dependencies from remote repositories at runtime, on every server that runs your
+plugin. Pointing it at Maven Central (or other public repositories such as Sonatype) effectively
+uses them as a CDN to serve dependencies to end users, which their infrastructure is not meant for.
 
-To avoid putting this load on public repositories, it is strongly recommended that you host your own
-mirror of the repositories you depend on and configure Libby to download from it instead. This keeps
-the traffic on infrastructure you control, and protects you from upstream availability or rate-limiting issues.
+Host your own mirror of the repositories you depend on and configure Libby to use it instead. This
+keeps traffic on infrastructure you control and avoids upstream availability or rate-limiting issues.
 
 ### Usage
 
-Firstly, add the maven artifact, here's an example for gradle:
+Add the repository and dependency (Gradle example):
 ```kts
-// Firstly add my repo
 maven { url = uri("https://repo.kyngs.xyz/public/") }
 
-// then add the dependency
-implementation("xyz.kyngs.libby:libby-paper:2.0.0-SNAPSHOT") // Replace paper with the platform you are using
+implementation("xyz.kyngs.libby:libby-paper:2.0.0-SNAPSHOT") // replace paper with your platform
 ```
 
-Remember to **always** relocate Libby to avoid conflicts
+**Always** relocate Libby to avoid conflicts:
 ```kts
 relocate("xyz.kyngs.libby", "your.package.lib.libby")
 ```
 
-Then, create a new LibraryManager instance
-```java
-// Create a library manager for a Paper plugin
-PaperLibraryManager bukkitLibraryManager = new PaperLibraryManager(plugin);
-
-// Create a library manager for a Bungee plugin
-BungeeLibraryManager bungeeLibraryManager = new BungeeLibraryManager(plugin);
-```
-
-Create a Library in[build.gradle.kts](../LibrePremium/Plugin/build.gradle.kts)stance with the library builder
-```java
-Library lib = Library.builder()
-    .groupId("your{}dependency{}groupId") // "{}" is replaced with ".", useful to avoid unwanted changes made by maven-shade-plugin
-    .artifactId("artifactId")
-    .version("version")
-     // The following are optional
-
-     // Sets an id for the library
-    .id("my-lib")
-     // Relocation is applied to the downloaded jar before loading it
-    .relocate("package{}to{}relocate", "the{}relocated{}package") // "{}" is replaced with ".", useful to avoid unwanted changes made by maven-shade-plugin
-     // The library is loaded into an IsolatedClassLoader, which is in common between every library with the same id
-    .isolatedLoad(true)
-    .classifier("customClassifier")
-    .checksum("Base64-encoded SHA-256 checksum")
-    .build();
-```
-
-Finally, add Maven Central (or other repositories) to the library manager and download your library. To do this,
-you can use the `LibraryManager#loadLibrary(Library libraryToLoad)` method, which automatically downloads and then loads the provided library.
-```java
-libraryManager.addMavenCentral();
-libraryManager.loadLibrary(lib);
-```
-
-<details><summary>Complete code</summary>
-
+Create a LibraryManager for your platform:
 ```java
 PaperLibraryManager libraryManager = new PaperLibraryManager(plugin);
+```
 
+Build a Library:
+```java
 Library lib = Library.builder()
-    .groupId("your{}dependency{}groupId") // "{}" is replaced with ".", useful to avoid unwanted changes made by maven-shade-plugin
+    .groupId("your{}dependency{}groupId") // "{}" becomes ".", avoiding relocation by shade
     .artifactId("artifactId")
     .version("version")
-     // The following are optional
-
-     // Sets an id for the library
-    .id("my-lib")
-     // Relocation is applied to the downloaded jar before loading it
-    .relocate("package{}to{}relocate", "the{}relocated{}package") // "{}" is replaced with ".", useful to avoid unwanted changes made by maven-shade-plugin
-     // The library is loaded into an IsolatedClassLoader, which is in common between every library with the same id
+    // the rest are optional:
+    .id("my-lib") // libraries sharing an id load into a common IsolatedClassLoader
+    .relocate("package{}to{}relocate", "the{}relocated{}package")
     .isolatedLoad(true)
     .classifier("customClassifier")
     .checksum("Base64-encoded SHA-256 checksum")
     .build();
+```
 
+Add a repository, then download and load the library. `loadLibrary` handles both:
+```java
 libraryManager.addMavenCentral();
 libraryManager.loadLibrary(lib);
 ```
 
-</details>
+## Gradle plugin
+
+The Gradle plugin lets you declare Libby dependencies in your build script instead of specifying
+them manually in code. On build, it generates a `libby.json` inside your JAR listing all
+dependencies (including transitive ones) and their repositories, which Libby loads at runtime.
+
+### Adding the plugin
+
+Add the plugin repository in `settings.gradle`:
+
+```groovy
+pluginManagement {
+    repositories {
+        maven {
+            url = uri("https://repo.kyngs.xyz/gradle-plugins")
+        }
+        gradlePluginPortal()
+    }
+}
+```
+
+Then apply it in `build.gradle`:
+
+```groovy
+plugins {
+    id 'xyz.kyngs.libby.plugin' version '1.2.1'
+}
+```
+
+### Declaring dependencies
+
+Replace the `compileOnly` configuration with `libby`:
+
+```groovy
+dependencies {
+    libby 'com.zaxxer:HikariCP:5.0.1'
+}
+```
+
+The libby task, run automatically on build, writes the `libby.json` described above into the final JAR.
+
+### Linking with Libby
+
+The plugin only generates `libby.json`; you still have to load it. Call
+`LibraryManager.configureFromJSON()` to do so.
+
+### Further configuration
+
+#### Relocating
+
+Relocation is important when bundling libraries. Add the `shadow` plugin alongside Libby:
+
+```groovy
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'xyz.kyngs.libby.plugin' version '1.2.1'
+}
+```
+
+Then define the relocation rules:
+
+```groovy
+shadowJar {
+    relocate 'com.zaxxer.hikari', 'com.example.hikari'
+}
+```
+
+See the [shadow plugin documentation](https://imperceptiblethoughts.com/shadow/configuration/relocation/) for details.
+
+**If you use relocation, you must build with the shadowJar task.**
+
+#### Excluding dependencies
+
+The plugin resolves all transitive dependencies, some of which may be unnecessary. For example,
+`com.zaxxer:HikariCP` pulls in `org.slf4j:slf4j-api`, which platforms like Bukkit already bundle,
+so downloading it is redundant and can cause conflicts.
+
+Exclude a dependency with a regular expression matched against each dependency id
+(`groupId:artifactId:version`):
+
+```groovy
+libby {
+    excludeDependency 'org.slf4j:.*:.*'
+}
+```
+
+The example above excludes everything in the `org.slf4j` group.
 
 ## Credits
 
