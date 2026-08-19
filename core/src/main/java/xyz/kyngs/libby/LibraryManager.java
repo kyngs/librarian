@@ -162,27 +162,6 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Adds the Sonatype OSS repository.
-     */
-    public void addSonatype() {
-        addRepository(Repositories.SONATYPE);
-    }
-
-    /**
-     * Adds the Bintray JCenter repository.
-     */
-    public void addJCenter() {
-        addRepository(Repositories.JCENTER);
-    }
-
-    /**
-     * Adds the JitPack repository.
-     */
-    public void addJitPack() {
-        addRepository(Repositories.JITPACK);
-    }
-
-    /**
      * Gets all of the possible download URLs for this library. Entries are
      * ordered by direct download URLs first and then repository download URLs.
      * <br>This method also resolves SNAPSHOT artifacts URLs.
