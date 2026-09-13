@@ -11,6 +11,8 @@ plugins {
     `maven-publish`
 }
 
+group = "xyz.kyngs.librarian"
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()

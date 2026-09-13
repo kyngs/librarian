@@ -30,7 +30,7 @@ which can be overridden using the `mavenCentralRepositoryUrl` variable in the `l
 
 Add the repository and dependency (Gradle example):
 ```kts
-maven { url = uri("https://repo.kyngs.xyz/public/") }
+maven("https://repo.kyngs.xyz/public/")
 
 implementation("xyz.kyngs.librarian:librarian-paper:2.0.0-SNAPSHOT") // replace paper with your platform
 ```
